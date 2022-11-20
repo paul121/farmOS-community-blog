@@ -1,0 +1,22 @@
+name: Announce post
+on:
+  push:
+    branches:
+      - 'main-test'
+
+jobs:
+  build-message:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Build message
+        run: echo "MESSAGE=A new change was made to a blog post - ${{ github.event.head_commit.message }}" >> $GITHUB_ENV
+    outputs:
+      message: ${{ env.MESSAGE }}
+  create-message:
+    needs:
+      - build-message
+    uses: paul121/farmOS-microblog/.github/workflows/create-message.yml@main
+    with:
+      message: ${{ needs.build-message.outputs.message }}
+    secrets:
+      MICROBLOG_DEPLOY_KEY: ${{ secrets.MICROBLOG_DEPLOY_KEY }}
